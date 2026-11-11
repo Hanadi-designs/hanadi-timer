@@ -85,3 +85,16 @@
 "connect.errLink" = "هذا لا يبدو رابط صفحة في Notion.";
 "connect.errNoKey" = "الصق رمز API أولًا.";
 "connect.errOther" = "تعذّر الوصول إلى Notion (%d). حاول مرة أخرى.";
+
+/* Use as: just a timer, or track my hours */
+"choice.title" = "كيف تريد استخدامه؟";
+"choice.timer" = "مؤقت فقط";
+"choice.timerHint" = "لا يُحفظ أي شيء";
+"choice.track" = "تتبّع ساعاتي";
+"choice.trackHint" = "سجل ليومك على هذا الجهاز";
+"choice.later" = "يمكن تغيير ذلك لاحقًا بالنقر بالزر الأيمن.";
+"menu.useAs" = "طريقة الاستخدام";
+"menu.export" = "تصدير ساعاتي…";
+"menu.notionAdvanced" = "الإرسال إلى Notion (متقدم)…";
+"csv.header" = "التاريخ,النوع,البداية,النهاية,الدقائق";
+"export.filename" = "ساعات Hanadi Timer";

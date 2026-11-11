@@ -6,6 +6,7 @@ import AppKit
 import SwiftUI
 import ServiceManagement
 import Carbon
+import UniformTypeIdentifiers
 
 // MARK: - Brand
 
@@ -133,6 +134,15 @@ final class TimerModel: ObservableObject {
 
     /// Previews and self-tests: no sound, nothing saved.
     static var preview = false
+
+    /// How the timer is used, chosen on first launch: "timer" (nothing is logged) or "track" (today's log,
+    /// history on this Mac, export, optional Notion). Empty until chosen.
+    static var usage: String { UserDefaults.standard.string(forKey: "usage") ?? "" }
+    static var isTracking: Bool {
+        // Self-tests track unless TIMER_USAGE=timer, so both modes can be checked without saving anything.
+        if preview { return ProcessInfo.processInfo.environment["TIMER_USAGE"] != "timer" }
+        return usage == "track"
+    }
     /// The time; self-tests swap in a fake clock to cross midnight or be away for hours.
     static var clock: () -> Date = { Date() }
     /// Seconds since the last keyboard or mouse input (no permission needed); swapped in self-tests.
@@ -538,7 +548,7 @@ final class TimerModel: ObservableObject {
     }
 
     private func record(_ kind: LogEntry.Kind, from start: Date, to end: Date) {
-        guard end.timeIntervalSince(start) >= 5 else { return } // ignore accidental taps
+        guard end.timeIntervalSince(start) >= 5, Self.isTracking else { return } // short taps, or "just a timer"
         let entry = LogEntry(kind: kind, start: start, end: end)
         log.append(entry)
         Self.onRecord?(entry)
@@ -582,7 +592,7 @@ final class TimerModel: ObservableObject {
         lastSave = now
         // A running work stretch is saved as finished up to now, so nothing is lost if the Mac shuts down.
         var entries = log
-        if let s = segmentStart, now.timeIntervalSince(s) >= 5 { entries.append(LogEntry(kind: .work, start: s, end: now)) }
+        if Self.isTracking, let s = segmentStart, now.timeIntervalSince(s) >= 5 { entries.append(LogEntry(kind: .work, start: s, end: now)) }
         let state = SavedState(day: Self.today, mode: mode.rawValue, presetMin: presetMin, elapsed: elapsed,
                                onBreak: onBreak, breakStartedAt: breakStartedAt,
                                resumeAfterBreak: resumeAfterBreak || running, log: entries,
@@ -596,7 +606,7 @@ final class TimerModel: ObservableObject {
               let s = try? JSONDecoder().decode(SavedState.self, from: data) else { return }
         // Copy the saved log into the permanent history first (skips entries already there),
         // so a day's work survives the daily reset below.
-        WorkHistory.append(s.log)
+        if Self.isTracking { WorkHistory.append(s.log) }
         day = s.day
         log = s.log
         mode = Mode(rawValue: s.mode) ?? .idle
@@ -870,6 +880,66 @@ struct BreakButton: View {
     }
 }
 
+/// First launch: just a timer, or a timer that keeps track of your hours. Can be changed in the right-click menu.
+struct ChoicePrompt: View {
+    static var forceShow = false
+    let pick: (String) -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if let logo = brandLogo {
+                Image(nsImage: logo).resizable().interpolation(.high).scaledToFit().frame(height: 26)
+            }
+            Text(L("choice.title")).font(mono(8.5)).tracking(letterSpacing(1.1)).foregroundStyle(.white.opacity(0.55))
+            option(L("choice.timer"), L("choice.timerHint"), fill: .coral) { pick("timer") }
+            option(L("choice.track"), L("choice.trackHint"), fill: .turquoise) { pick("track") }
+            Text(L("choice.later")).font(raleway(.medium, 9.5)).foregroundStyle(.white.opacity(0.4))
+                .multilineTextAlignment(.center).frame(width: 190)
+        }
+        .frame(width: TimerView.diameter, height: TimerView.diameter)
+        .background(Circle().fill(Color.black))
+    }
+
+    private func option(_ title: String, _ hint: String, fill: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 1) {
+                Text(title).font(raleway(.bold, 13))
+                Text(hint).font(raleway(.medium, 9.5)).opacity(0.75)
+            }
+            .foregroundStyle(.black)
+            .frame(width: 180, height: 44)
+            .background(Capsule().fill(fill))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Saves the whole history as a CSV (date, type, start, end, minutes) that opens in Numbers or Excel.
+func exportHours() {
+    let panel = NSSavePanel()
+    panel.nameFieldStringValue = L("export.filename") + " " + hoursDay.string(from: Date()) + ".csv"
+    panel.allowedContentTypes = [.commaSeparatedText]
+    NSApp.activate(ignoringOtherApps: true)
+    guard panel.runModal() == .OK, let url = panel.url else { return }
+    writeHoursCSV(to: url)
+}
+
+private let hoursDay: DateFormatter = { let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; return f }()
+
+func writeHoursCSV(to url: URL) {
+    let time = DateFormatter()
+    time.dateFormat = "HH:mm"
+    var csv = L("csv.header") + "\n"
+    for e in WorkHistory.readAll() {
+        let minutes = String(format: "%.1f", e.duration / 60)
+        let type = L(e.kind == .work ? "kind.work" : "kind.break")
+        csv += "\(hoursDay.string(from: e.start)),\(type),\(time.string(from: e.start)),\(time.string(from: e.end)),\(minutes)\n"
+    }
+    // A byte-order mark so Excel reads Arabic text correctly.
+    try? (Data([0xEF, 0xBB, 0xBF]) + Data(csv.utf8)).write(to: url, options: .atomic)
+}
+
 /// Shown on the dial after you were away: work paused, you choose what that time was.
 struct AwayPrompt: View {
     @ObservedObject var m: TimerModel
@@ -884,7 +954,9 @@ struct AwayPrompt: View {
                 .frame(width: 210)
             VStack(spacing: 8) {
                 choice(L("away.resume"), fill: .turquoise) { m.comeBack(countAsBreak: false) }
-                choice(L("away.asBreak"), fill: .sand) { m.comeBack(countAsBreak: true) }
+                if TimerModel.isTracking {
+                    choice(L("away.asBreak"), fill: .sand) { m.comeBack(countAsBreak: true) }
+                }
             }
             .padding(.top, 4)
         }
@@ -910,6 +982,7 @@ struct TimerView: View {
     @AppStorage("onTop") private var onTop = true
     @ObservedObject private var sync = NotionSync.shared
     @ObservedObject private var loc = Loc.shared
+    @AppStorage("usage") private var usage = ""
     @AppStorage("scale") private var storedScale = 1.0
     @State private var resizing = false
     @State private var pinchStart: Double?
@@ -1004,6 +1077,7 @@ struct TimerView: View {
                     .font(mono(7.5))
                     .tracking(letterSpacing(0.8))
                     .foregroundStyle(.white.opacity(0.42))
+                    .opacity(usage == "track" || TimerModel.preview ? 1 : 0)
 
                 HStack(spacing: 6) {
                     ForEach([10, 20, 40, 60], id: \.self) { min in
@@ -1025,6 +1099,7 @@ struct TimerView: View {
             .padding(.top, 6)
         }
         .overlay { if m.awaySince != nil { AwayPrompt(m: m) } }
+        .overlay { if usage.isEmpty && (!TimerModel.preview || ChoicePrompt.forceShow) { ChoicePrompt { usage = $0 } } }
         .frame(width: Self.diameter, height: Self.diameter)
         .contentShape(Circle())
         .padding(10) // room for the window shadow
@@ -1065,6 +1140,11 @@ struct TimerView: View {
                 try? svc.status == .enabled ? svc.unregister() : svc.register()
             }
             Divider()
+            Menu(L("menu.useAs")) {
+                Button((usage == "timer" ? "✓ " : "") + L("choice.timer")) { usage = "timer" }
+                Button((usage == "track" ? "✓ " : "") + L("choice.track")) { usage = "track" }
+            }
+            if usage == "track" {
             Menu(L("menu.today", TimerModel.format(m.workedToday).lowercased())) {
                 Text(L("menu.worked", TimerModel.format(m.workedToday).lowercased()))
                 Text(m.breaksToday == 1 ? L("menu.breaks.one", TimerModel.format(m.breakTimeToday).lowercased())
@@ -1078,11 +1158,17 @@ struct TimerView: View {
                     Button(L("menu.clearLog")) { m.clearLog() }
                 }
             }
+            Button(L("menu.export")) { exportHours() }
+            if sync.inUse {
+                Text(sync.statusText)
+                Button(L("menu.notionSettings")) { ConnectNotionWindow.show() }
+            } else {
+                Button(L("menu.notionAdvanced")) { ConnectNotionWindow.show() }
+            }
+            }
+            Divider()
             Button(L(m.onBreak ? "menu.backToWork" : "menu.takeBreak")) { m.toggleBreak() }
             Button(L("menu.resetTimer")) { m.reset() }
-            Divider()
-            Text(sync.statusText)
-            Button(L(sync.connected ? "menu.notionSettings" : "menu.connectNotion")) { ConnectNotionWindow.show() }
             Divider()
             Menu(L("menu.language")) {
                 languageButton("system", L("lang.system"))
@@ -1411,12 +1497,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         add(L(model.onBreak ? "menu.backToWork" : "menu.takeBreak"), #selector(menuBreak))
         menu.addItem(.separator())
-        let b = model.breaksToday
-        add(L("menu.todayBar", TimerModel.format(model.workedToday).lowercased(), b), nil)
-        menu.addItem(.separator())
-        add(NotionSync.shared.statusText, nil)
-        add(L(NotionSync.shared.connected ? "menu.notionSettings" : "menu.connectNotion"), #selector(menuConnectNotion))
-        menu.addItem(.separator())
+        if TimerModel.usage == "track" {
+            let b = model.breaksToday
+            add(L("menu.todayBar", TimerModel.format(model.workedToday).lowercased(), b), nil)
+            add(L("menu.export"), #selector(menuExport))
+            if NotionSync.shared.inUse {
+                add(NotionSync.shared.statusText, nil)
+                add(L("menu.notionSettings"), #selector(menuConnectNotion))
+            }
+            menu.addItem(.separator())
+        }
         add(L("menu.quit"), #selector(menuQuit), key: "q")
     }
 
@@ -1425,6 +1515,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func menuBreak() { model.toggleBreak(); updateStatusItem() }
     @objc private func menuQuit() { NSApp.terminate(nil) }
     @objc private func menuConnectNotion() { ConnectNotionWindow.show() }
+    @objc private func menuExport() { exportHours() }
 
     // Opening the app again (Spotlight, Finder, Dock) while it runs always shows the timer.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -1456,6 +1547,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
 registerBrandFonts()
 if let lang = ProcessInfo.processInfo.environment["TIMER_LANG"] { Loc.shared.override = lang }
+
+// `hanadiTimer --export-csv <file>` writes the hours CSV without the save dialog (reads the history only), then exits.
+if let i = CommandLine.arguments.firstIndex(of: "--export-csv"), i + 1 < CommandLine.arguments.count {
+    writeHoursCSV(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+    exit(0)
+}
 
 // `hanadiTimer --synctest <port>` replays sample stretches against a fake Notion server on localhost, then exits.
 if let i = CommandLine.arguments.firstIndex(of: "--synctest"), i + 1 < CommandLine.arguments.count {
@@ -1579,6 +1676,7 @@ if let i = CommandLine.arguments.firstIndex(of: "--snapshot"), i + 1 < CommandLi
         ("1-05-30", { $0.tapScreen(); $0.debugSkip(3600 + 5 * 60 + 30, cheer: false) }),
         ("6-49-12", { $0.tapScreen(); $0.debugSkip(6 * 3600 + 49 * 60 + 12, cheer: false); $0.tapScreen() }),
         ("12-03-44", { $0.tapScreen(); $0.debugSkip(12 * 3600 + 3 * 60 + 44, cheer: false) }),
+        ("choose", { _ in }),
         ("away", { $0.tapScreen(); $0.debugSkip(40 * 60, cheer: false); $0.away(at: TimerModel.clock().addingTimeInterval(-25 * 60)) }), ("countup", { $0.tapScreen() }), ("break", { $0.toggleBreak() }),
     ]
     for (name, setup) in states { MainActor.assumeIsolated {
@@ -1586,7 +1684,13 @@ if let i = CommandLine.arguments.firstIndex(of: "--snapshot"), i + 1 < CommandLi
         let m = TimerModel()
         setup(m)
         let savedSize = UserDefaults.standard.object(forKey: "scale")
-        defer { UserDefaults.standard.set(savedSize, forKey: "scale") }
+        let savedUsage = UserDefaults.standard.object(forKey: "usage")
+        defer {
+            UserDefaults.standard.set(savedSize, forKey: "scale")
+            UserDefaults.standard.set(savedUsage, forKey: "usage")
+        }
+        ChoicePrompt.forceShow = name == "choose"
+        if name == "choose" { UserDefaults.standard.removeObject(forKey: "usage") }
         // The long-running states are checked at every size; the rest at one.
         let sizes: [(String, Double)] = ["45-12", "1-05-30", "6-49-12", "12-03-44"].contains(name)
             ? [("-small", 0.65), ("-medium", 1.0), ("-large", 1.4)] : [("", name == "large" ? 1.4 : 1.0)]

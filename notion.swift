@@ -130,6 +130,9 @@ final class NotionSync: ObservableObject {
         load()
     }
 
+    /// Notion is an advanced extra: it counts as in use once a token or a Work log has been set up.
+    var inUse: Bool { connected || databaseID != nil }
+
     var statusText: String {
         guard connected else { return L("notion.notConnected") }
         guard databaseID != nil else { return L("notion.needsPage") }

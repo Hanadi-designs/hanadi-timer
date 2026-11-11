@@ -85,3 +85,16 @@
 "connect.errLink" = "That doesn't look like a Notion page link.";
 "connect.errNoKey" = "Paste your API token first.";
 "connect.errOther" = "Couldn't reach Notion (%d). Try again.";
+
+/* Use as: just a timer, or track my hours */
+"choice.title" = "HOW WILL YOU USE IT?";
+"choice.timer" = "Just a timer";
+"choice.timerHint" = "Nothing is saved";
+"choice.track" = "Track my hours";
+"choice.trackHint" = "A log of your day, on this Mac";
+"choice.later" = "You can change this later with a right-click.";
+"menu.useAs" = "Use as";
+"menu.export" = "Export my hours…";
+"menu.notionAdvanced" = "Send to Notion (advanced)…";
+"csv.header" = "Date,Type,Start,End,Minutes";
+"export.filename" = "Hanadi Timer hours";
