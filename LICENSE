@@ -19,17 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Brand assets
-
-The MIT license above covers the source code. It does not cover the name
-"Hanadi Timer", the Hanadi Alotaibi logo, or the portrait mark (assets/logo.png,
-assets/AppIcon-1024.png and the screenshots that show them). These belong to
-Hanadi Alotaibi. If you publish a modified version, use your own name and logo.
-
-Fonts
-
-Raleway and JetBrains Mono are included under the SIL Open Font License 1.1;
-see assets/fonts/Raleway/OFL.txt and assets/fonts/JetBrainsMono/OFL.txt.

@@ -98,7 +98,7 @@ open ~/Applications/"Hanadi Timer.app"
 
 ## الترخيص
 
-الشيفرة البرمجية مرخّصة بموجب [رخصة MIT](LICENSE).
+الشيفرة البرمجية مرخّصة بموجب [رخصة MIT](LICENSE). الاسم والشعار والصورة غير مشمولة؛ راجع [BRAND.md](BRAND.md).
 
 **عناصر الهوية:** الاسم «Hanadi Timer» وشعار هنادي العتيبي والرسم الشخصي ملك لهنادي العتيبي، ولا تشملها رخصة MIT. إذا نشرت نسختك الخاصة فاستخدم اسمًا وشعارًا خاصين بك. أما الخطوط [Raleway](assets/fonts/Raleway/OFL.txt) و[JetBrains Mono](assets/fonts/JetBrainsMono/OFL.txt) فتبقى برخصتها الخاصة SIL Open Font License.
 

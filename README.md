@@ -92,7 +92,7 @@ After you update the app, macOS may ask once whether Hanadi Timer can use its No
 
 ## License
 
-The code is under the [MIT License](LICENSE).
+The code is under the [MIT License](LICENSE). The name, logo and portrait mark are not covered; see [BRAND.md](BRAND.md).
 
 **Brand assets:** the name "Hanadi Timer", the Hanadi Alotaibi logo and the portrait mark belong to Hanadi Alotaibi and are not covered by the MIT License. If you publish your own version, give it your own name and logo. The fonts, [Raleway](assets/fonts/Raleway/OFL.txt) and [JetBrains Mono](assets/fonts/JetBrainsMono/OFL.txt), keep their own SIL Open Font License.
 
