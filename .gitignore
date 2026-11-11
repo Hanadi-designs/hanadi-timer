@@ -1,0 +1,15 @@
+# Build output
+build/
+*.app
+*.iconset
+*.icns
+
+# macOS
+.DS_Store
+._*
+
+# Scratch
+scratch/
+*.bak
+*.log
+__pycache__/
