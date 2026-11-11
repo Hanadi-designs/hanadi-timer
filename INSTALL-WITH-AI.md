@@ -1,6 +1,6 @@
-# Installing Hanadi Timer (instructions for Claude)
+# Installing Hanadi Timer (instructions for an AI assistant)
 
-You are helping someone install Hanadi Timer, a small Mac app built from this repository. The person may not be technical. Follow these steps in order.
+You are an AI assistant that can run commands on the person's Mac (for example Claude Code, Gemini CLI or Codex), helping them install Hanadi Timer from this repository. The person may not be technical. Follow these steps in order.
 
 ## Ground rules
 
@@ -8,6 +8,8 @@ You are helping someone install Hanadi Timer, a small Mac app built from this re
 - **No admin rights, no passwords.** Nothing here needs `sudo` or an administrator password. Never ask for a password, and never ask anyone to paste a token, key or password into the chat.
 - **Keep it simple.** The install is: check the tools, clone, build, open, and ask one question. Don't bring up Notion or anything under "Optional extras" unless the person asks for it.
 - Explain what each step does in one plain sentence before doing it.
+
+If you can't run commands on their Mac (a chat-only assistant), say so and point them to the download route in the README instead.
 
 ## 1. Check the Mac
 
@@ -19,7 +21,7 @@ You are helping someone install Hanadi Timer, a small Mac app built from this re
 ## 2. Get the code and build
 
 ```bash
-git clone REPO_URL ~/hanadi-timer
+git clone https://github.com/Hanadi-designs/hanadi-timer ~/hanadi-timer
 cd ~/hanadi-timer
 ./build.sh
 ```
@@ -74,14 +76,16 @@ Quit the timer, then delete `~/Applications/Hanadi Timer.app`. With "Track my ho
 
 Needs **Track my hours**. The person does every step themselves; you guide.
 
-1. In Notion, create an internal connection and copy its API token: open notion.so/profile/integrations (Notion may label it **Connections**, e.g. app.notion.com/developers/connections) → **New** → name it (for example "Hanadi Timer") → choose their workspace → type **Internal** → save → copy the token.
-2. Right-click the timer → **Send to Notion (advanced)…** → paste the token into the first field. **The token goes only into this window, never into the chat.**
-3. In Notion, open (or create) the page where the log should live → **•••** (top right) → **Connections** → add the connection from step 1.
-4. Copy that page's link (**•••** → **Copy link**) and paste it into the timer's second field → **Save**. The timer creates a "Work log" database in the page and shows "Work log ready ✓". If they already have a Work log database, its link works too.
-5. To test: take a break of at least a minute, then tap **Back to work**. A Break row appears in the Work log within a minute.
+1. Open https://app.notion.com/developers/connections → **Build** › **Internal connections** → **Create a new connection**.
+2. Name it (for example "Hanadi Timer"), keep **API token** as the authentication method → **Create connection**.
+3. On the **Configuration** tab, copy the token.
+4. On the **Content access** tab → **Edit access** → pick the page where the log should live.
+5. Right-click the timer → **Send to Notion (advanced)…** → paste the token into the first field. **The token goes only into this window, never into the chat.**
+6. In Notion, open that page → **•••** (top right) → **Copy link**. Paste it into the timer's second field → **Save**. The timer creates a "Work log" database in the page and shows "Work log ready ✓". If they already have a Work log database, its link works too.
+7. To test: take a break of at least a minute, then tap **Back to work**. A Break row appears in the Work log within a minute.
 
 Optional: a **Timeline** view by Start/End, a **Calendar** view by Day, or a sum of Hours grouped by Day can be added in Notion by hand (or by you, if you have a Notion connector and they ask).
 
 After an app update, macOS may show its own window asking whether Hanadi Timer can use the Notion token. That window is macOS asking the person for their Mac password; they type it there themselves and click **Always Allow**. Never ask for it in chat.
 
-If the timer's menu says "Notion: share the page with your connection", step 3 was missed. "Key not accepted" means the token was copied wrong; they can paste it again in **Notion Settings…**.
+If the timer's menu says "Notion: give your connection access to the page", step 4 was missed or a different page was linked. "Key not accepted" means the token was copied wrong; they can paste it again in **Notion Settings…**.

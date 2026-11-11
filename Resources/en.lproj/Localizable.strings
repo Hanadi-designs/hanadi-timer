@@ -64,12 +64,12 @@
 "notion.notConnected" = "Notion: not connected";
 "notion.needsPage" = "Notion: add a page link";
 "notion.keyRejected" = "Notion: key not accepted · reconnect";
-"notion.noAccess" = "Notion: share the page with your connection";
+"notion.noAccess" = "Notion: give your connection access to the page";
 "notion.retrying" = "Notion: waiting to retry";
 "notion.connected" = "Notion: connected";
 "notion.connectedSent" = "Notion: connected · last sent %@";
 "connect.title" = "Connect Notion";
-"connect.intro" = "Paste your Notion connection's API token, then the link of a Notion page shared with that connection. A Work log is created in that page. The token is kept in your Mac's Keychain only.";
+"connect.intro" = "Paste the API token from your Notion connection, then the link of the page it can access (Content access). A Work log is created in that page. The token is kept in your Mac's Keychain only.";
 "connect.introConnected" = "Connected. Your work and breaks go to your Work log. Paste a new token or page link to change them.";
 "connect.keyPlaceholder" = "Paste your Notion API token";
 "connect.keySaved" = "Token saved · paste a new one to replace it";
@@ -80,7 +80,7 @@
 "connect.save" = "Save";
 "connect.working" = "Setting up your Work log…";
 "connect.ready" = "Work log ready ✓";
-"connect.errAccess" = "Notion can't open that page. In Notion open the page → ••• → Connections → add your connection, then Save again.";
+"connect.errAccess" = "Notion can't open that page. In your connection's Content access tab, choose Edit access and add this page, then Save again.";
 "connect.errKey" = "Notion didn't accept the token. Copy it again from your connection.";
 "connect.errLink" = "That doesn't look like a Notion page link.";
 "connect.errNoKey" = "Paste your API token first.";

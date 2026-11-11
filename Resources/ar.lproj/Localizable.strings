@@ -64,12 +64,12 @@
 "notion.notConnected" = "Notion: غير مربوط";
 "notion.needsPage" = "Notion: أضف رابط صفحة";
 "notion.keyRejected" = "Notion: المفتاح غير مقبول · أعد الربط";
-"notion.noAccess" = "Notion: شارك الصفحة مع الاتصال";
+"notion.noAccess" = "Notion: امنح الاتصال صلاحية الوصول إلى الصفحة";
 "notion.retrying" = "Notion: بانتظار إعادة المحاولة";
 "notion.connected" = "Notion: مربوط";
 "notion.connectedSent" = "Notion: مربوط · آخر إرسال %@";
 "connect.title" = "ربط Notion";
-"connect.intro" = "الصق رمز API الخاص باتصال Notion، ثم رابط صفحة في Notion مشاركة مع هذا الاتصال. يُنشأ سجل العمل داخل تلك الصفحة. يُحفظ الرمز في سلسلة مفاتيح جهازك فقط.";
+"connect.intro" = "الصق رمز API من اتصال Notion، ثم رابط الصفحة التي يصل إليها الاتصال (Content access). يُنشأ سجل العمل داخل تلك الصفحة. يُحفظ الرمز في سلسلة مفاتيح جهازك فقط.";
 "connect.introConnected" = "تم الربط. يُرسل عملك واستراحاتك إلى سجل العمل. الصق رمزًا أو رابطًا جديدًا لتغييرهما.";
 "connect.keyPlaceholder" = "الصق رمز API من Notion";
 "connect.keySaved" = "الرمز محفوظ · الصق رمزًا جديدًا لاستبداله";
@@ -80,7 +80,7 @@
 "connect.save" = "حفظ";
 "connect.working" = "جارٍ إعداد سجل العمل…";
 "connect.ready" = "سجل العمل جاهز ✓";
-"connect.errAccess" = "لا يستطيع Notion فتح هذه الصفحة. افتح الصفحة في Notion ← ••• ← Connections ← أضف الاتصال، ثم احفظ مرة أخرى.";
+"connect.errAccess" = "لا يستطيع Notion فتح هذه الصفحة. في تبويب Content access للاتصال اختر Edit access وأضف هذه الصفحة، ثم احفظ مرة أخرى.";
 "connect.errKey" = "لم يقبل Notion الرمز. انسخه مرة أخرى من صفحة الاتصال.";
 "connect.errLink" = "هذا لا يبدو رابط صفحة في Notion.";
 "connect.errNoKey" = "الصق رمز API أولًا.";

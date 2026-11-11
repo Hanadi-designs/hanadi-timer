@@ -6,7 +6,10 @@
 
 مؤقت مكتبي دائري بشاشة LED لجهاز Mac، يبقى ظاهرًا فوق النوافذ الأخرى. اضغط عليه ليبدأ العد من 00:00، أو اختر 10 أو 20 أو 40 أو 60 دقيقة. خذ استراحة دون أن يضيع وقت عملك.
 
-<p align="center"><img src="assets/screenshot-ar.png" width="320" alt="Hanadi Timer أثناء جلسة تركيز مدتها 20 دقيقة"></p>
+<p align="center">
+  <img src="assets/screenshot-ar.png" width="300" alt="Hanadi Timer أثناء جلسة تركيز مدتها 20 دقيقة">
+  <img src="assets/choice-ar.png" width="300" alt="الاختيار عند أول تشغيل: مؤقت فقط أو تتبّع ساعاتي">
+</p>
 
 ## طريقتان للاستخدام
 
@@ -26,25 +29,34 @@
 - **أصوات محفزة** وتشجيع عند المراحل (كل 15 دقيقة، منتصف الجلسة، الدقيقة الأخيرة).
 - **العربية والإنجليزية** حسب لغة جهازك، أو اختر اللغة من قائمة الزر الأيمن.
 
-## المتطلبات
+يحتاج macOS 15 (Sequoia) أو أحدث. لا يحتاج صلاحيات مدير ولا حسابات ولا كلمات مرور.
 
-- macOS 15 (Sequoia) أو أحدث
-- أدوات Xcode لسطر الأوامر (مجانية: `xcode-select --install`)
+## التثبيت
 
-لا يحتاج صلاحيات مدير ولا حسابات ولا كلمات مرور.
+اختر إحدى ثلاث طرق.
 
-## التثبيت عن طريق Claude
+### 1. عن طريق مساعد الذكاء الاصطناعي
 
-انسخ هذه الجملة وأرسلها إلى Claude (Claude Code، أو Claude الذي يصل إلى جهازك):
+يحتاج مساعدًا يستطيع تنفيذ الأوامر على جهازك، مثل تطبيق Claude على سطح المكتب (Claude Code) أو Gemini CLI. المساعدات التي تعمل كمحادثة في المتصفح فقط لا تستطيع تثبيت التطبيقات؛ استخدم طريقة التنزيل بدلًا منها. انسخ هذه الجملة وأرسلها:
 
-> ثبّت Hanadi Timer من REPO_URL على جهازي باتباع ملف INSTALL-WITH-CLAUDE.md.
+> ثبّت Hanadi Timer من https://github.com/Hanadi-designs/hanadi-timer على جهازي باتباع ملف INSTALL-WITH-AI.md.
 
-## التثبيت يدويًا
+### 2. التنزيل
+
+1. نزّل **Hanadi-Timer-macOS.zip** من [أحدث إصدار](https://github.com/Hanadi-designs/hanadi-timer/releases/latest) وانقر عليه نقرًا مزدوجًا.
+2. اسحب **Hanadi Timer** إلى مجلد **Applications** (التطبيقات).
+3. في المرة الأولى فقط: انقر على التطبيق **بالزر الأيمن** ← **Open** ← **Open**. وإذا قال macOS إنه لا يمكن فتحه، فافتح **إعدادات النظام ← الخصوصية والأمان**، وانزل للأسفل واضغط **Open Anyway** (الفتح على أي حال).
+
+يسأل macOS هذا السؤال لأن التطبيق غير موثّق من Apple، فهو مشروع شخصي مجاني وليس من حساب مطوّر مدفوع لدى Apple. أما بناؤه بنفسك (الطريقة التالية) فلا يُظهر هذا السؤال.
+
+### 3. بناؤه بنفسك
+
+يحتاج أدوات Xcode لسطر الأوامر المجانية (`xcode-select --install`).
 
 <div dir="ltr">
 
 ```bash
-git clone REPO_URL hanadi-timer
+git clone https://github.com/Hanadi-designs/hanadi-timer hanadi-timer
 cd hanadi-timer
 ./build.sh
 open ~/Applications/"Hanadi Timer.app"
@@ -77,14 +89,19 @@ open ~/Applications/"Hanadi Timer.app"
 
 فقط مع **تتبّع ساعاتي**، وفقط إذا كنت تستخدم Notion. يصبح كل وقت عمل وكل استراحة صفًا في «Work log» على Notion.
 
-1. أنشئ اتصالًا داخليًا (Internal connection) في Notion وانسخ رمز API الخاص به (في Notion: الإعدادات ← Connections ← Develop or manage integrations، أو notion.so/profile/integrations).
-2. انقر على المؤقت بالزر الأيمن ← **الإرسال إلى Notion (متقدم)…** ← الصق الرمز. يُحفظ في سلسلة مفاتيح جهازك فقط. لا تلصقه في أي محادثة.
-3. في Notion افتح الصفحة التي تريد السجل فيها ← **•••** ← **Connections** ← أضف الاتصال. انسخ رابط الصفحة والصقه في الحقل الثاني في المؤقت ← **حفظ**. يُنشأ جدول «Work log» داخل الصفحة (أو الصق رابط سجل عمل موجود).
+1. افتح https://app.notion.com/developers/connections ← **Build** › **Internal connections** ← **Create a new connection**. سمِّ الاتصال، واترك طريقة المصادقة **API token** ← **Create connection**.
+2. من تبويب **Configuration** انسخ الرمز. ومن تبويب **Content access** ← **Edit access** ← اختر الصفحة التي تريد السجل فيها.
+3. انقر على المؤقت بالزر الأيمن ← **الإرسال إلى Notion (متقدم)…** ← الصق الرمز. يُحفظ في سلسلة مفاتيح جهازك فقط. لا تلصقه في أي محادثة.
+4. في Notion افتح تلك الصفحة ← **•••** ← **Copy link**، والصق الرابط في الحقل الثاني في المؤقت ← **حفظ**. يُنشأ جدول «Work log» داخل الصفحة (أو الصق رابط سجل عمل موجود).
 
 بعد تحديث التطبيق قد يسأل macOS مرة واحدة إن كان مسموحًا لـ Hanadi Timer باستخدام رمز Notion. أدخل كلمة مرور جهازك واضغط **Always Allow**.
 
-## الشكر
+## الترخيص
 
-التصميم والهوية: هنادي العتيبي. الخطوط: [Raleway](assets/fonts/Raleway/OFL.txt) و[JetBrains Mono](assets/fonts/JetBrainsMono/OFL.txt)، وكلاهما برخصة SIL Open Font License.
+الشيفرة البرمجية مرخّصة بموجب [رخصة MIT](LICENSE).
+
+**عناصر الهوية:** الاسم «Hanadi Timer» وشعار هنادي العتيبي والرسم الشخصي ملك لهنادي العتيبي، ولا تشملها رخصة MIT. إذا نشرت نسختك الخاصة فاستخدم اسمًا وشعارًا خاصين بك. أما الخطوط [Raleway](assets/fonts/Raleway/OFL.txt) و[JetBrains Mono](assets/fonts/JetBrainsMono/OFL.txt) فتبقى برخصتها الخاصة SIL Open Font License.
+
+التصميم: هنادي العتيبي.
 
 </div>

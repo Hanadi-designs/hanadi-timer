@@ -2,8 +2,16 @@
 # Builds "Hanadi Timer.app". Everything it needs is in this folder.
 #   ./build.sh                      → ~/Applications/Hanadi Timer.app
 #   APP_DIR=/some/folder ./build.sh → /some/folder/Hanadi Timer.app
+#   ./build.sh release              → dist/Hanadi-Timer-macOS.zip (for a GitHub Release download)
 set -e
 cd "${0:A:h}"
+
+RELEASE=""
+if [[ "$1" == "release" ]]; then
+  # Build outside this folder: synced folders (iCloud, Dropbox) add file metadata that code signing rejects.
+  RELEASE="$(mktemp -d)"
+  APP_DIR="$RELEASE"
+fi
 
 if ! command -v swiftc >/dev/null 2>&1; then
   echo "Swift isn't installed. Run:  xcode-select --install  then run ./build.sh again." >&2
@@ -53,7 +61,16 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </dict></plist>
 PLIST
 
+xattr -cr "$APP"
+
 # Sign with a requirement that names the app, not this exact build, so the Keychain keeps trusting
 # rebuilds of Hanadi Timer with the Notion token instead of asking again after every update.
 codesign --force -s - -r='designated => identifier "com.hanadialotaibi.timer"' "$APP"
 echo "Built: $APP"
+
+if [[ -n "$RELEASE" ]]; then
+  rm -rf dist && mkdir dist
+  ditto -c -k --keepParent "$APP" dist/Hanadi-Timer-macOS.zip
+  rm -rf "$RELEASE"
+  echo "Release: $PWD/dist/Hanadi-Timer-macOS.zip"
+fi
